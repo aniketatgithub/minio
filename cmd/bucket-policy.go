@@ -136,9 +136,15 @@ func getConditionValues(r *http.Request, lc string, cred auth.Credentials) map[s
 		"principaltype":    {principalType},
 		"userid":           {username},
 		"username":         {username},
-		"versionid":        {vid},
 		"signatureversion": {signatureVersion},
 		"authType":         {authtype},
+	}
+
+	// Only expose s3:versionid to policy condition evaluation when the
+	// request actually carries a version ID. Leaving a present-but-empty
+	// value would make e.g. `Null: {s3:versionid: true}` never match.
+	if vid != "" {
+		args["versionid"] = []string{vid}
 	}
 
 	if lc != "" {
